@@ -27,14 +27,16 @@ def register(request):
         if form.is_valid():
             username = form.cleaned_data.get('username')
             email = form.cleaned_data.get('email')
+            print(username, email)
         
             if User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists():
                 messages.warning(request, f"User {username} already exists. Please login")
+                print("/////////////////////////////")
                 return redirect('login')
             else:
                 form.save()
                 messages.success(request, f"Welcome {username}, Your Account Is Created Successfully")
-                redirect('login')
+                return render(request, 'login.html')
     else:
         form = RegisterForm()
     return render(request, 'register.html', {'form': form})
