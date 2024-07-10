@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Description</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .job-details {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .job-details h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .job-details p {
+            color: #555;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        .job-details p strong {
+            color: #000;
+        }
+
+        .apply-button {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .apply-button a {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .apply-button a:hover {
+            background-color: #45a049;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .job-details {
+                margin: 20px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .job-details {
+                margin: 10px;
+                padding: 10px;
+            }
+            .apply-button a {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'nav.html' %}
+
+    <div class="job-details">
+        <h2>{{ job.Job_position }}</h2>
+        <p><strong>Type:</strong> {{ job.job_type }}</p>
+        <p><strong>Duration:</strong> {{ job.job_duration }}</p>
+        <p><strong>Sector:</strong> {{ job.job_sector }}</p>
+        <p><strong>Location:</strong> {{ job.job_location }}</p>
+        <p><strong>Description:</strong> {{ job.job_description }}</p>
+        <p><strong>Company Description:</strong> {{ job.company_description }}</p>
+        <p><strong>Responsibilities:</strong> {{ job.responsibilities }}</p>
+        <p><strong>Qualification:</strong> {{ job.qualification }}</p>
+        <p><strong>Experience:</strong> {{ job.experience }}</p>
+        <p><strong>Skills:</strong> {{ job.skill }}</p>
+        <p><strong>Leewayzon Facility:</strong> {{ job.leewayzon_facility }}</p>
+        <div class="apply-button">
+            <a href="{% url 'application' %}">Apply</a>
+        </div>
+    </div>
+</body>
+</html>

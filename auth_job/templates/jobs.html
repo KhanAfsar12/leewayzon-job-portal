@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Jobs</title>
+</head>
+<body>
+    {% include 'nav.html' %}
+    
+    <div class="jobs">
+        {% for job in jobs %}
+            <h4>{{ job.job_location }}</h4>
+            <h5>
+                <a href="{% url 'description' job_id=job.job_id %}" style="color: rgba(6, 6, 6, 0.929); margin-bottom: 4px;">
+                    {{ job.job_position }}
+                </a>
+            </h5>
+            <p>
+                <a href="{% url 'description' job_id=job.job_id %}" style="color: rgb(120, 120, 120); margin-bottom: 4px;">
+                    {{ job.job_sector }}
+                </a>
+            </p><br>
+        {% endfor %}
+    </div>
+</body>
+</html>

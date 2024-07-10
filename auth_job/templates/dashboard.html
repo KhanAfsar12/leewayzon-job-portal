@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <style>
+        .navbar-brand img {
+            height: 40px;
+        }
+        .content-section {
+            padding: 60px 0;
+        }
+        .content-section img {
+            max-width: 100%;
+        }
+        .messages{
+            position: fixed;
+            top: 66px;
+            right: 400px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+   {% include 'nav.html' %}
+
+
+   <div class="container mt-5">
+    <div id="messages" class="messages">
+        {% if messages %}
+            {% for message in messages %}
+            <div id="message_{{ message.id }}" class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+    <!-- Home Section -->
+    <div class="content-section bg-light text-center">
+        <div class="container">
+            <h2 class="mb-4">Welcome to Our Website</h2>
+            <p class="lead">We provide the best services to help you grow your business.</p>
+            <img src="https://via.placeholder.com/800x400" alt="Welcome Image" class="img-fluid">
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="content-section text-center">
+        <div class="container">
+            <h2 class="mb-4">About Us</h2>
+            <p class="lead">Learn more about our company and values.</p>
+            <img src="https://via.placeholder.com/800x400" alt="About Us Image" class="img-fluid">
+        </div>
+    </div>
+
+    <!-- Training Section -->
+    <div class="content-section bg-light text-center">
+        <div class="container">
+            <h2 class="mb-4">Training Programs</h2>
+            <p class="lead">Explore our training programs designed to boost your skills.</p>
+            <img src="https://via.placeholder.com/800x400" alt="Training Image" class="img-fluid">
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <div class="content-section text-center">
+        <div class="container">
+            <h2 class="mb-4">Our Services</h2>
+            <p class="lead">We offer a wide range of services to meet your needs.</p>
+            <img src="https://via.placeholder.com/800x400" alt="Services Image" class="img-fluid">
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="content-section bg-light text-center">
+        <div class="container">
+            <h2 class="mb-4">Contact Us</h2>
+            <p class="lead">Get in touch with us for any queries or support.</p>
+            <img src="https://via.placeholder.com/800x400" alt="Contact Image" class="img-fluid">
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        // Automatically remove messages after 2 seconds
+        setTimeout(function() {
+            var messagesContainer = document.getElementById('messages');
+            if (messagesContainer) {
+                var messages = messagesContainer.getElementsByClassName('alert');
+                for (var i = 0; i < messages.length; i++) {
+                    var message = messages[i];
+                    message.remove();
+                }
+            }
+        }, 2000);
+    </script>
+
+</body>
+</html>
