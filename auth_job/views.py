@@ -114,7 +114,6 @@ def application_view(request):
             existing = Application.objects.filter(
                 user = request.user,
                 job_id = job_id,
-                # email = form.cleaned_data['email']     if user want to send application of another person through their account.
             )
             if existing.exists():
                 messages.warning(request, "You have already submitted the application for this job.")
@@ -129,8 +128,3 @@ def application_view(request):
     else:
         form = ApplicationForm()
     return render(request, 'application_form.html', {'form':form})
-
-
-
-
-

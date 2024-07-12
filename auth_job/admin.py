@@ -4,8 +4,8 @@ from .models import Job, Application
 # Register your models here.
 
 class ApplicationAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'address', 'phone_number', 'resume', 'linkedin_link', 'experience_name')
-    search_fields = ('first_name', 'email', 'experience_name', )
+    list_display = ('first_name', 'last_name', 'email', 'address', 'phone_number', 'resume', 'linkedin_link', 'experience_name', 'job',)
+    search_fields = ('first_name', 'last_name', 'email', 'address', 'phone_number', 'resume', 'linkedin_link', 'experience_name', 'job__job_position',)
     actions = ['download_resume']
 
     def download_resume(self, request, queryset):
@@ -15,7 +15,7 @@ class ApplicationAdmin(admin.ModelAdmin):
             response['Content-Disposition'] = f'attachment; filename={filename}'
             return response
         
-    download_resume.short_description = 'Download selected resumes'
+    download_resume.short_description = 'Download selected resume'
 
 
 class JobsAdmin(admin.ModelAdmin):
