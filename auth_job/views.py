@@ -31,8 +31,7 @@ def register(request):
         
             if User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists():
                 messages.warning(request, f"User {username} already exists. Please login")
-                print("/////////////////////////////")
-                return redirect('login')
+                return render(request, 'login.html')
             else:
                 form.save()
                 messages.success(request, f"Welcome {username}, Your Account Is Created Successfully")
@@ -56,11 +55,12 @@ def login_view(request):
         try:
             user_record = User.objects.filter(username=username).first()
             if not user_record:
-                return HttpResponse("User not found")
+                messages.warning(request, f"You may need to create an account")
+                return redirect('register')
             if user_record.is_staff==1 and user_record.is_superuser==0:
                 return HttpResponse("You can login through admin panel")
         except Exception as e:
-            return render(request, "signup.html")
+            return redirect('register')
         
         user = authenticate(request, username=username, password=password) 
         if user is not None:
