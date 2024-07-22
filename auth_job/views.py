@@ -4,10 +4,10 @@ from django.contrib import messages
 from django.urls import reverse
 
 from django.conf import settings
-from .forms import ApplicationForm, RegisterForm
+from .forms import ApplicationForm, EducationFormSet, ExperienceFormSet, RegisterForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from .models import Application, Job
+from .models import Application, Education, Experience, Job
 from django.contrib import auth
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
@@ -108,8 +108,10 @@ def application_view(request):
         job_id = None
 
     if request.method == "POST":
-        form = ApplicationForm(request.POST, request.FILES)
-        if form.is_valid():
+        application_form = ApplicationForm(request.POST, request.FILES)
+        education_formset = EducationFormSet(request.POST, queryset=Education.objects.none())
+        experience_formset = ExperienceFormSet(request.POST, queryset=Experience.objects.none())
+        if application_form.is_valid() and education_formset.is_valid() and experience_formset.is_valid():
 
             existing = Application.objects.filter(
                 user = request.user,
@@ -119,12 +121,54 @@ def application_view(request):
                 messages.warning(request, "You have already submitted the application for this job.")
                 return redirect('dashboard')
             
-            application = form.save(commit=False)
+            application = application_form.save(commit=False)
             application.user_id = request.user.id
             application.job_id = job_id
             application.save()
+
+            for form in education_formset:
+                education = form.save(commit=False)
+                education.user = request.user
+                education.save()
+
+
+            for form in experience_formset:
+                experience = form.save(commit=False)
+                experience.user = request.user
+                experience.save()
             messages.success(request, "Your Application has been submitted successfully")
             return redirect('dashboard')
     else:
-        form = ApplicationForm()
+        application_form = ApplicationForm()
+        education_formset = EducationFormSet(queryset=Education.objects.none())
+        experience_formset = ExperienceFormSet(queryset=Experience.objects.none())
+
+        form = {
+            'application_form': application_form,
+            'education_formset': education_formset,
+            'experience_formset': experience_formset
+        }
     return render(request, 'application_form.html', {'form':form})
+
+
+# For download bio data of particular user
+def UserDataView(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    applications = Application.objects.filter(user=user)
+    experiences = Experience.objects.filter(user=user)
+    educations = Education.objects.filter(user=user)
+    print(applications, experiences, educations)
+
+    context = {
+        'user': user,
+        'applications': applications,
+        'experiences': experiences,
+        'educations': educations
+    }
+    return render(request, 'user_data.html', context)
+
+
+
+def custom_action_view(request):
+    # Perform your custom action logic
+    return HttpResponse("Custom action performed!")

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Data</title>
+</head>
+<body>
+    <h1>User Data for {{ user.username }}</h1>
+    
+    <h2>Applications</h2>
+    {% for application in applications %}
+    <ul>
+        <li>{{ application.first_name }}</li>
+        <li>{{ application.last_name }}</li>
+        <li>{{ application.email }}</li>
+    </ul>
+    {% endfor %}
+    
+    <h2>Experiences</h2>
+    {% for experience in experiences %}
+    <ul>
+        <li>{{ experience.experience_name }} at {{ experience.experience_company }}</li>
+        <li>Office Location: {{ experience.experience_office_location }}</li>
+        <li>Experience Description: <br> {{ experience.experience_description}}</li>
+    </ul>
+    {% endfor %}
+    
+    <h2>Educations</h2>
+    {% for education in educations %}
+    <ul>
+        <li>{{ education.education_institute }}</li>
+        <li>{{ education.education_degree }} in  {{ education.education_major }}</li>
+        <li>{{ education.education_school_location }}</li>
+        <li>{{ education.education_description }}</li>
+    </ul>
+    {% endfor %}
+</body>
+</html>

@@ -15,7 +15,20 @@
         <h2>Job Application Form</h2>
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
+            <h4>Application Details</h4>
+            {{ form.application_form.as_p }}
+
+            <h4>Education Details</h4>
+            {{ form.education_formset.management_form }}
+            {% for form in form.education_formset %}
+                {{ form.as_p }}
+            {% endfor %}
+
+            <h4>Experience Details</h4>
+            {{ form.experience_formset.management_form }}
+            {% for form in form.experience_formset %}
+                {{ form.as_p }}
+            {% endfor %}
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
