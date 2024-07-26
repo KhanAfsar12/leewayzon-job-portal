@@ -6,13 +6,13 @@ from django.shortcuts import render
 from .models import Job, Application, Education, Experience
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter, ChoiceDropdownFilter, DropdownFilter # type: ignore
 from django.contrib.admin.filters import SimpleListFilter
-from django_object_actions import DjangoObjectActions
+from django_object_actions import DjangoObjectActions # type: ignore
 from django.contrib.auth.models import User
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter # type: ignore
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph # type: ignore
+from reportlab.lib.units import inch # type: ignore
+from reportlab.lib import colors # type: ignore
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle # type: ignore
 
 
 class ApplicationAdmin(admin.ModelAdmin):
@@ -50,9 +50,9 @@ class ApplicationAdmin(admin.ModelAdmin):
         styles = getSampleStyleSheet()
         title_style = styles['Title']
         normal_style = styles['Normal']
+        wrap_style = ParagraphStyle(name='Wrap', wordWrap='CJK')
 
         # Title
-        elements.append(Paragraph("Biodata Document", title_style))
         elements.append(Paragraph("<br/>", normal_style))
 
         # Process each application
@@ -62,14 +62,14 @@ class ApplicationAdmin(admin.ModelAdmin):
             
             # Application Information
             application_info = [
-                ('First Name', application.first_name),
-                ('Last Name', application.last_name),
-                ('Email', application.email),
-                ('Address', application.address),
-                ('Phone Number', application.phone_number),
-                ('Resume', application.resume.url),
-                ('LinkedIn Link', application.linkedin_link),
-                ('Job ID', str(application.job_id))
+                ('First Name', Paragraph(application.first_name, wrap_style)),
+                ('Last Name', Paragraph(application.last_name, wrap_style)),
+                ('Email', Paragraph(application.email, wrap_style)),
+                ('Address', Paragraph(application.address, wrap_style)),
+                ('Phone Number', Paragraph(application.phone_number, wrap_style)),
+                ('Resume', Paragraph(application.resume.url, wrap_style)),
+                ('LinkedIn Link', Paragraph(application.linkedin_link, wrap_style)),
+                ('Job ID', Paragraph(str(application.job_id), wrap_style))
             ]
 
             table = Table(application_info, colWidths=[2*inch, 4*inch])
@@ -87,24 +87,31 @@ class ApplicationAdmin(admin.ModelAdmin):
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ]))
             elements.append(table)
-            elements.append(Paragraph("<br/>", normal_style))
+            elements.append(Paragraph("<br/> <br/> <br/>", normal_style))
+
+
+
 
             # Experience Information
             experiences = application.user.experiences.all()
-            for experience in experiences:
-                elements.append(Paragraph(f"Experience at {experience.experience_company}", title_style))
-                experience_info = [
-                    ('Name', experience.experience_name),
-                    ('Office Location', experience.experience_office_location),
-                    ('Description', experience.experience_description),
-                    ('Date From', str(experience.experience_date_from)),
-                    ('Date To', str(experience.experience_date_to))
-                ]
-                table = Table(experience_info, colWidths=[2*inch, 4*inch])
+            if experiences:
+                elements.append(Paragraph("Experience Information", title_style))
+                experience_data = [['Company', 'Name', 'Office Location', 'Description', 'Date From', 'Date To']]
+                for experience in experiences:
+                    experience_data.append([
+                        Paragraph(experience.experience_company,wrap_style),
+                        Paragraph(experience.experience_name,wrap_style),
+                        Paragraph(experience.experience_office_location,wrap_style),
+                        Paragraph(experience.experience_description, wrap_style),
+                        Paragraph(str(experience.experience_date_from), wrap_style),
+                        Paragraph(str(experience.experience_date_to), wrap_style)
+                    ])
+
+                table = Table(experience_data, colWidths=[1.7*inch, 1.5*inch, 1.5*inch, 1.5*inch, 1*inch, 1*inch])
                 table.setStyle(TableStyle([
                     ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
                     ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                    ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONT', (0, 0), (0, 0), 'Helvetica-Bold'),
                     ('FONT', (0, 1), (-1, -1), 'Helvetica'),
                     ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                     ('LEFTPADDING', (0, 0), (-1, -1), 10),
@@ -114,25 +121,32 @@ class ApplicationAdmin(admin.ModelAdmin):
                     ('GRID', (0, 0), (-1, -1), 1, colors.black),
                 ]))
                 elements.append(table)
-                elements.append(Paragraph("<br/>", normal_style))
+                elements.append(Paragraph("<br/> <br/> <br/> ", normal_style))
+
+
+
 
             # Education Information
             educations = application.user.educations.all()
-            for education in educations:
-                elements.append(Paragraph(f"Education at {education.education_institute}", title_style))
-                education_info = [
-                    ('Major', education.education_major),
-                    ('Degree', education.education_degree),
-                    ('School Location', education.education_school_location),
-                    ('Description', education.education_description),
-                    ('Date From', str(education.education_date_from)),
-                    ('Date To', str(education.education_date_to))
-                ]
-                table = Table(education_info, colWidths=[2*inch, 4*inch])
+            if educations:
+                elements.append(Paragraph("Education Information", title_style))
+                education_data = [['Institute', 'Major', 'Degree', 'School Location', 'Description', 'Date From', 'Date To']]
+                for education in educations:
+                    education_data.append([
+                        Paragraph(education.education_institute, wrap_style),
+                        Paragraph(education.education_major, wrap_style),
+                        Paragraph(education.education_degree, wrap_style),
+                        Paragraph(education.education_school_location, wrap_style),
+                        Paragraph(education.education_description, wrap_style),
+                        Paragraph(str(education.education_date_from), wrap_style),
+                        Paragraph(str(education.education_date_to), wrap_style)
+                    ])
+
+                table = Table(education_data, colWidths=[1.5*inch,1*inch, 1*inch, 1.3*inch, 1.5*inch, 1*inch])
                 table.setStyle(TableStyle([
                     ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
                     ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                    ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONT', (0, 0), (0, 0), 'Helvetica-Bold'),
                     ('FONT', (0, 1), (-1, -1), 'Helvetica'),
                     ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                     ('LEFTPADDING', (0, 0), (-1, -1), 10),
@@ -142,7 +156,7 @@ class ApplicationAdmin(admin.ModelAdmin):
                     ('GRID', (0, 0), (-1, -1), 1, colors.black),
                 ]))
                 elements.append(table)
-                elements.append(Paragraph("<br/>", normal_style))
+                elements.append(Paragraph("<br/> <br/> <br/> ", normal_style))
 
         doc.build(elements)
         pdf = buffer.getvalue()
@@ -152,7 +166,7 @@ class ApplicationAdmin(admin.ModelAdmin):
         return response
 
     custom_action.short_description = 'Download selected user data as PDF'
-    
+            
 
 class EducationAdmin(admin.ModelAdmin):
     list_display = ('education_institute', 'education_major', 'education_degree', 'education_school_location', 'education_description', 'education_date_from', 'education_date_to', 'user',)
