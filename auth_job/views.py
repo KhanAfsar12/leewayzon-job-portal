@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.urls import reverse
@@ -47,13 +47,13 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        print(username, password)
 
         if not (username and password):
             return HttpResponse("User credentials are required!")
 
         try:
             user_record = User.objects.filter(username=username).first()
+            print(user_record)
             if not user_record:
                 messages.warning(request, f"You may need to create an account")
                 return redirect('register')
@@ -63,13 +63,12 @@ def login_view(request):
             return redirect('register')
         
         user = authenticate(request, username=username, password=password) 
+        print(user)
         if user is not None:
             login(request, user)
             request.session.set_expiry(settings.SESSION_COOKIE_AGE) 
             request.session['user_id'] = user.id
             print(request.session['user_id'])
-            # return render(request, 'dashboard.html', {"user": user})
-            # return redirect('dashboard')
             return HttpResponseRedirect(reverse('dashboard'))
         else:
             return HttpResponse("Invalid email or password")
@@ -112,7 +111,6 @@ def application_view(request):
         education_formset = EducationFormSet(request.POST, queryset=Education.objects.none())
         experience_formset = ExperienceFormSet(request.POST, queryset=Experience.objects.none())
         if application_form.is_valid() and education_formset.is_valid() and experience_formset.is_valid():
-
             existing = Application.objects.filter(
                 user = request.user,
                 job_id = job_id,
@@ -148,7 +146,8 @@ def application_view(request):
             'education_formset': education_formset,
             'experience_formset': experience_formset
         }
-    return render(request, 'application_form.html', {'form':form})
+    return render(request, 'application_form.html', {'form': form})
+
 
 
 # For download bio data of particular user
@@ -169,6 +168,15 @@ def UserDataView(request, user_id):
 
 
 
-def custom_action_view(request):
-    # Perform your custom action logic
-    return HttpResponse("Custom action performed!")
+def application_data(request):
+    applications = Application.objects.all().values(
+        'form_id', 'user__username', 'job__job_position', 'first_name', 'last_name', 
+        'email', 'address', 'phone_number', 'linkedin_link', 'facebook_link', 
+        'twitter_link', 'website_link', 'resume', 'message'
+    )
+    application_list = list(applications)
+    print(application_list)
+    return JsonResponse(list(application_list), safe=False)
+
+def ag_grid_view(request):
+    return render(request, 'grid.html')
