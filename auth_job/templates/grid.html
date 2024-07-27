@@ -11,8 +11,66 @@
 <div id="myGrid" class="ag-theme-alpine" style="height: 600px; width: 100%;"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.noStyle.js"></script>
-<script>
+<!-- <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const gridOptions = {
+            columnDefs: [
+                { headerName: 'Form ID', field: 'form_id' },
+                { headerName: 'Username', field: 'user__username' },
+                { headerName: 'Job Position', field: 'job__job_position' },
+                { headerName: 'First Name', field: 'first_name' },
+                { headerName: 'Last Name', field: 'last_name' },
+                { headerName: 'Email', field: 'email' },
+                { headerName: 'Address', field: 'address' },
+                { headerName: 'Phone Number', field: 'phone_number' },
+                { headerName: 'LinkedIn', field: 'linkedin_link' },
+                { headerName: 'Facebook', field: 'facebook_link' },
+                { headerName: 'Twitter', field: 'twitter_link' },
+                { headerName: 'Website', field: 'website_link' },
+                { headerName: 'Resume', field: 'resume' },
+                { headerName: 'Message', field: 'message' },
+            ],
+            pagination: true,
+            paginationPageSize: 20,
+            onGridReady: function(params) {
+                loadPageData(1, 20, params);
+            },
+            onPaginationChanged: function(params) {
+                const currentPage = params.api.paginationGetCurrentPage() + 1;
+                const pageSize = params.api.paginationGetPageSize();
+                loadPageData(currentPage, pageSize, params);
+            }
+        };
+    
+        const eGridDiv = document.querySelector('#myGrid');
+        new agGrid.Grid(eGridDiv, gridOptions);
+    
+        function loadPageData(page, pageSize, params) {
+            fetch(`/api/applications/?page=${page}&pageSize=${pageSize}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (Array.isArray(data.rowData)) {
+                        params.api.applyTransaction({ add: data.rowData });
+                        params.api.paginationSetRowCount(data.totalRows, true);
+                        params.api.hideOverlay();
+                        
+                    } else {
+                        console.error('Expected rowData to be an array', data.rowData);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data', error);
+                    params.api.showNoRowsOverlay();
+                });
+        }
+        
+    });
+    
+</script> -->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
         const gridOptions = {
             columnDefs: [
             { headerName: 'Form ID', field: 'form_id' },
@@ -31,28 +89,26 @@
             { headerName: 'Message', field: 'message' },
             ],
             pagination: true,
-            paginationPageSize: 20,
-            onGridReady: function (params) {
-                fetch('/api/applications/')
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Data fetched from API:', data);
-                        params.api.applyTransaction({ add: data });
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
-                    })
-                    .finally(() => {
-                        params.api.showLoadingOverlay = false;
-                        params.api.hideOverlay();
-                    });
+            paginationPageSize: 10,
+            rowModelType: 'infinite',
+            datasource: {
+                getRows(params) {
+                    fetch('/api/applications/')
+                        .then(response => response.json())
+                        .then(data => {
+                            params.successCallback(data.data, data.data.length);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching data:', error);
+                            params.failCallback();
+                        });
+                }
             }
         };
-    
+
         const eGridDiv = document.querySelector('#myGrid');
         new agGrid.Grid(eGridDiv, gridOptions);
     });
-    
 </script>
 </body>
 </html>

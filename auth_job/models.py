@@ -41,8 +41,6 @@ class Application(models.Model):
     resume = models.FileField(upload_to='resumes/')
     message = models.TextField()
 
-    class Meta:
-        unique_together = ('user', 'job')
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

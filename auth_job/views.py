@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.urls import reverse
-
+from django.core.paginator import Paginator
 from django.conf import settings
 from .forms import ApplicationForm, EducationFormSet, ExperienceFormSet, RegisterForm
 from django.contrib.auth.models import User
@@ -101,26 +101,28 @@ def apply(request):
 
 @login_required
 def application_view(request):
-    if 'job_id' in request.session:
-        job_id = request.session['job_id']
-    else:
-        job_id = None
+    job_id = request.session.get('job_id', None)
+
+    if not job_id:
+        messages.error(request, "No job selected.")
+        return redirect('dashboard')
+    
+    job = get_object_or_404(Job, pk=job_id)
+
 
     if request.method == "POST":
         application_form = ApplicationForm(request.POST, request.FILES)
         education_formset = EducationFormSet(request.POST, queryset=Education.objects.none())
         experience_formset = ExperienceFormSet(request.POST, queryset=Experience.objects.none())
+
         if application_form.is_valid() and education_formset.is_valid() and experience_formset.is_valid():
-            existing = Application.objects.filter(
-                user = request.user,
-                job_id = job_id,
-            )
+            existing = Application.objects.filter(user=request.user, job_id=job_id)
             if existing.exists():
                 messages.warning(request, "You have already submitted the application for this job.")
                 return redirect('dashboard')
-            
+
             application = application_form.save(commit=False)
-            application.user_id = request.user.id
+            application.user = request.user
             application.job_id = job_id
             application.save()
 
@@ -129,25 +131,32 @@ def application_view(request):
                 education.user = request.user
                 education.save()
 
-
             for form in experience_formset:
                 experience = form.save(commit=False)
                 experience.user = request.user
                 experience.save()
+
             messages.success(request, "Your Application has been submitted successfully")
             return redirect('dashboard')
+        else:
+            if not application_form.is_valid():
+                print("Application Form Errors:", application_form.errors)
+            if not education_formset.is_valid():
+                print("Education Formset Errors:", education_formset.errors)
+            if not experience_formset.is_valid():
+                print("Experience Formset Errors:", experience_formset.errors)
+            messages.error(request, "There was an error in your submission. Please correct the errors and try again.")
     else:
         application_form = ApplicationForm()
         education_formset = EducationFormSet(queryset=Education.objects.none())
         experience_formset = ExperienceFormSet(queryset=Experience.objects.none())
 
-        form = {
-            'application_form': application_form,
-            'education_formset': education_formset,
-            'experience_formset': experience_formset
-        }
+    form = {
+        'application_form': application_form,
+        'education_formset': education_formset,
+        'experience_formset': experience_formset
+    }
     return render(request, 'application_form.html', {'form': form})
-
 
 
 # For download bio data of particular user
@@ -168,15 +177,33 @@ def UserDataView(request, user_id):
 
 
 
+# def application_data(request):
+#     applications = Application.objects.all().values(
+#         'form_id', 'user__username', 'job__job_position', 'first_name', 'last_name', 
+#         'email', 'address', 'phone_number', 'linkedin_link', 'facebook_link', 
+#         'twitter_link', 'website_link', 'resume', 'message'
+#     )
+
+#     page_num = request.GET.get('page', 1)
+#     page_size = request.GET.get('pageSize', 20)
+
+#     paginator = Paginator(applications, page_size)
+#     page_obj = paginator.get_page(page_num)
+#     application_list = list(page_obj.object_list)
+
+#     print(application_list)
+#     return JsonResponse({
+#         'rowData': application_list,
+#         'totalRows': paginator.count
+#     })
+
 def application_data(request):
-    applications = Application.objects.all().values(
+    data = list(Application.objects.values(
         'form_id', 'user__username', 'job__job_position', 'first_name', 'last_name', 
-        'email', 'address', 'phone_number', 'linkedin_link', 'facebook_link', 
-        'twitter_link', 'website_link', 'resume', 'message'
-    )
-    application_list = list(applications)
-    print(application_list)
-    return JsonResponse(list(application_list), safe=False)
+         'email', 'address', 'phone_number', 'linkedin_link', 'facebook_link', 
+         'twitter_link', 'website_link', 'resume', 'message'
+    ))  
+    return JsonResponse({'data': data})
 
 def ag_grid_view(request):
     return render(request, 'grid.html')
